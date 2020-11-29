@@ -16,7 +16,7 @@ exports.newAlgolia = functions.firestore.document('users/{uid}').onCreate((snap,
 		 							.then(service => {
 						                let data = {
 						                	objectID: doc.uid,
-						                	available: doc.available,
+						                	active: doc.active,
 										 	name: doc.name,
 										 	telephone: doc.telephone,
 										 	uid: doc.uid,
@@ -53,7 +53,7 @@ exports.editAlgolia = functions.firestore.document('users/{uid}').onUpdate((chan
 
 										index.partialUpdateObject({
 										  	name: service.data().name,
-										  	available: service.data().available,
+										  	active: service.data().active,
 										  	type: service.data().role,
 										  	telephone: service.data().telephone,
 										  	_geoloc: {
@@ -164,7 +164,9 @@ exports.createUser = functions.firestore.document('temporary/{userId}').onCreate
 		user.uid = newUser.uid
 
     // You can also store the new user in another collection with extra fields
-    await admin.firestore().collection('users').doc(newUser.uid).set(user);
+	await admin.firestore().collection('users').doc(newUser.uid).set(user);
+	
+	await admin.firestore().collection('information_user').doc(newUser.uid).set({ name: user.name, cancellationsCount: 0, deliveredCount: 0 })
 
     // Delete the temp document
     return admin.firestore().collection('temporary').doc(userId).delete();
