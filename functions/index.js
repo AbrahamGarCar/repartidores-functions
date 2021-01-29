@@ -168,6 +168,38 @@ exports.deliveredCount = functions.firestore.document('information_user/{informa
     });
 });
 
+//Contar la cantidad de restaurantes
+exports.restaurantsCount = functions.firestore.document('restaurants/{restaurantId}').onWrite((change, context) => {
+    const restaurantsRef = admin.firestore().collection('restaurants')
+    const counter = admin.firestore().collection('restaurants').doc('counter')
+    
+    return admin.firestore().runTransaction(transaction => {
+      	return transaction.get(restaurantsRef).then(ordersQuery => {
+        	const restaurantsCount = (ordersQuery.size - 1);
+
+			return transaction.update(counter, {
+				restaurantsCount: restaurantsCount
+			});
+      	});
+    });
+});
+
+//Contar la cantidad de usuarios
+exports.usersCount = functions.firestore.document('users/{userId}').onWrite((change, context) => {
+    const usersRef = admin.firestore().collection('users')
+    const counter = admin.firestore().collection('users').doc('counter')
+    
+    return admin.firestore().runTransaction(transaction => {
+		return transaction.get(usersRef).then(ordersQuery => {
+		  const usersCount = (ordersQuery.size - 1);
+
+		  return transaction.update(counter, {
+			  usersCount: usersCount
+		  });
+		});
+  });
+});
+
 //Registrar nuevo usuario
 exports.createUser = functions.firestore.document('temporary/{userId}').onCreate(async (snap, context) => {
     const userId = context.params.userId;
@@ -221,12 +253,10 @@ exports.scheduledRestaurantsPlan = functions.pubsub.schedule('0 3 * * *')
 
 //Job para checar el plan de cada usuario
 exports.scheduledUserPlan = functions.pubsub.schedule('0 3 * * *')
-	.timeZone('America/Chihuahua') // Users can choose timezone - default is America/Los_Angeles
+	.timeZone('America/Chihuahua')
 	.onRun(async (context) => {
 
 		let date = new Date(new Date().getFullYear(),new Date().getMonth() , new Date().getDate())
-
-		// admin.firestore().collection('users').doc().set({ name: 'esta es una prueba' });
 
 		await admin.firestore().collection('users')
 		 							.get()
