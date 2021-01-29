@@ -40,6 +40,23 @@ exports.newAlgolia = functions.firestore.document('users/{uid}').onCreate((snap,
 	return null
 })
 
+//Eliminar el registro del usuario en Algolia
+exports.deleteAlgolia = functions.firestore.document('users/{uid}').onDelete((snap, context) => {
+	const doc = snap.data()
+
+	const index = client.initIndex('users')
+
+	index.deleteObject(doc.uid).then(() => {
+		console.log('Objeto eliminado de algolia');
+		return null
+	}).catch(error => {
+		console.log(error);
+		throw error
+	});
+
+	return null
+})
+
 //Editar el registro del usuario en algolia
 exports.editAlgolia = functions.firestore.document('users/{uid}').onUpdate((change, context) => {
 	const uid = context.params.uid
