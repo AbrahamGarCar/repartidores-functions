@@ -229,16 +229,16 @@ exports.scheduledRestaurantsPlan = functions.pubsub.schedule('0 3 * * *')
 		let date = new Date(new Date().getFullYear(),new Date().getMonth() , new Date().getDate())
 
 		await admin.firestore().collection('restaurants')
-		 							.get()
-		 							.then(restaurants => {
-										restaurants.forEach(doc => {
-											if (doc.data().planDeactivate.toDate() < date) {
-												admin.firestore().collection('restaurants')
+									.where('planDeactivate', '<', date)
+									.get()
+									.then(users => {
+										
+										users.forEach(async doc => {
+											await admin.firestore().collection('restaurants')
 																		.doc(doc.id)
 																		.update({ active: false, plan: null })
-											}
-										})
 
+										})
 
 										return null
 						            }).catch(error => {
@@ -251,24 +251,25 @@ exports.scheduledRestaurantsPlan = functions.pubsub.schedule('0 3 * * *')
 	return null;
 });
 
+
 //Job para checar el plan de cada usuario
 exports.scheduledUserPlan = functions.pubsub.schedule('0 3 * * *')
-	.timeZone('America/Chihuahua')
+	.timeZone('America/Chihuahua') // Users can choose timezone - default is America/Los_Angeles
 	.onRun(async (context) => {
 
 		let date = new Date(new Date().getFullYear(),new Date().getMonth() , new Date().getDate())
 
 		await admin.firestore().collection('users')
-		 							.get()
-		 							.then(users => {
-										users.forEach(doc => {
-											if (doc.data().planDeactivate.toDate() < date) {
-												admin.firestore().collection('users')
+									.where('planDeactivate', '<', date)
+									.get()
+									.then(users => {
+										
+										users.forEach(async doc => {
+											await admin.firestore().collection('users')
 																		.doc(doc.id)
 																		.update({ active: false, plan: null })
-											}
-										})
 
+										})
 
 										return null
 						            }).catch(error => {
