@@ -101,6 +101,75 @@ exports.editAlgolia = functions.firestore.document('users/{uid}').onUpdate((chan
 	return null
 })
 
+//Crear el registro del restaurante en Algolia
+exports.newAlgoliaRestaurant = functions.firestore.document('restaurants/{uid}').onCreate((snap, context) => {
+	const doc = snap.data()
+
+	let data = {
+		objectID: context.params.uid,
+		active: doc.active,
+		name: doc.name,
+		telephone: doc.telephone,
+		direction: doc.direction,
+		email: doc.email,
+		id: context.params.uid,
+		_geoloc: doc._geoloc
+	}
+
+	const index = client.initIndex('restaurants')
+
+	index.saveObject(data)
+
+	return null
+})
+
+//Eliminar el registro del restaurante en Algolia
+exports.deleteAlgoliaRestaurant = functions.firestore.document('restaurants/{uid}').onDelete(async (snap, context) => {
+	const doc = snap.data()
+
+	const index = client.initIndex('restaurants')
+
+	index.deleteObject(doc.id).then(() => {
+		console.log('Objeto eliminado de algolia');
+		return null
+	}).catch(error => {
+		console.log(error);
+		throw error
+	});
+
+	return null
+})
+
+//Editar el registro del restaurante en algolia
+exports.editAlgoliaRestaurant = functions.firestore.document('restaurants/{uid}').onUpdate((change, context) => {
+	const id = context.params.uid
+
+	admin.firestore().collection('restaurants')
+								.doc(id)
+								.get()
+								.then(async service => {
+
+									const index = client.initIndex('restaurants')
+
+									index.partialUpdateObject({
+										name: service.data().name,
+										active: service.data().active,
+										telephone: service.data().telephone,
+										email: service.data().email,
+										direction: service.data().direction,
+										_geoloc: service.data()._geoloc,
+										objectID: id,
+									})
+
+									return null
+								}).catch(error => {
+									console.log('Error al editar algolia: ', error)
+									throw error
+								});
+
+	return null
+})
+
 //Enviar las notificaciones a los usuarios
 exports.newNotification = functions.firestore.document('notifications/{token}').onCreate((snap, context) => {
 	const doc = snap.data()
