@@ -112,6 +112,8 @@ exports.newAlgoliaRestaurant = functions.firestore.document('restaurants/{uid}')
 		telephone: doc.telephone,
 		direction: doc.direction,
 		email: doc.email,
+		image: doc.image,
+		tags: doc.tags,
 		id: context.params.uid,
 		_geoloc: doc._geoloc
 	}
@@ -157,6 +159,8 @@ exports.editAlgoliaRestaurant = functions.firestore.document('restaurants/{uid}'
 										telephone: service.data().telephone,
 										email: service.data().email,
 										direction: service.data().direction,
+										image: service.data().image,
+										tags: service.data().tags,
 										_geoloc: service.data()._geoloc,
 										objectID: id,
 									})
