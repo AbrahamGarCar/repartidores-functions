@@ -4,7 +4,7 @@ const admin = require('firebase-admin')
 admin.initializeApp(functions.config().firebase)
 
 const algoliasearch = require('algoliasearch')
-const client = algoliasearch('YN419Q56L7', 'edf8f9a3011445793f03c30eb44f69ad')
+const client = algoliasearch('QYAT4CFO3B', '6419dd4375b677945ad54aa3702f8751')
 
 //Crear el registro del usuario en Algolia
 exports.newAlgolia = functions.firestore.document('users/{uid}').onCreate((snap, context) => {
